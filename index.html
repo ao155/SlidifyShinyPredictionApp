@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Shiny Prediction App</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Shiny Prediction App">
+  <meta name="author" content="AO155">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  <link rel=stylesheet href="./assets/css/ribbons.css"></link>
+
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>Shiny Prediction App</h1>
+    <h2>Evaluate and compare different prediction models</h2>
+    <p>AO155<br/></p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>Background information</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li><b>Data</b><br>
+The app uses the &#39;Human Activity Recognition&#39; data set to train different predictive models, with the variable &#39;classe&quot; as target variable. <br>
+More info on the dataset can be found at: <a href="http://groupware.les.inf.puc-rio.br/har">http://groupware.les.inf.puc-rio.br/har</a> <br>
+<br></li>
+<li><b>Algorithms</b><br>
+The app offers the user a selection of two decision tree algorithms:
+
+<ul>
+<li><b>rPart:</b> recursive partitioning and regression trees</li>
+<li><b>Random Forest:</b> classification and regression based on a forest of trees using random inputs<br>
+<br></li>
+</ul></li>
+<li><b>Evaluation</b><br>
+The app evaluates the selected algorithm based on model accuracy.<br>
+<br></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-2" style="background:;">
+  <hgroup>
+    <h2>UI Functionality</h2>
+  </hgroup>
+  <article data-timings="">
+    <ol>
+<li>The user can <b>select between the rPart and the Random Forest algorithm</b> through a radio button.
+The app confirms the selection by printing out the selected model in the results panel.<br>
+<br></li>
+<li>The user can let the app <b>build the selected model</b>.
+The app confirms the completion of the model building process with a notice in the results panel.<br>
+<br></li>
+<li>The user can let the app <b>test the model</b>.
+The app displays the accuracy of the selected model in % in the results panel.<br>
+<br></li>
+<li>The user can then <b>select the other model and re-run these steps</b> to compare the accuracy of both models.<br></li>
+</ol>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-3" style="background:;">
+  <hgroup>
+    <h2>Server Functionality</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li><b>Reactive Outputs to UI</b><br>
+The server outputs are rendered depending on the action buttons in the UI. This way, the results panel shows interactive responses to the user activity.<br>
+<br></li>
+<li><b>Parameterized function for building the predictive model</b><br>
+The server calls another function which builds the predictive model. The server provides the name of the model selected by the user as a parameter to the other function. This other function then builds the model specified in the parameters, tests is using cross validation and returns the accuracy to the server.<br>
+(See next slide for a shortened demo of this function.)<br></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h2>Demo of the &#39;buildmodel&#39; function (shortened)</h2>
+  </hgroup>
+  <article data-timings="">
+    <pre><code class="r">buildmodel &lt;- function(modelname) {load(&quot;data.Rda&quot;); library(caret); set.seed(3875)
+        inTrain &lt;- createDataPartition(y=trainingclean$classe, p=0.6, list=FALSE)
+        traindata &lt;- trainingclean[inTrain,]
+        testdata &lt;- trainingclean[-inTrain,]
+        if (modelname == &quot;rPart&quot;) {library(rpart)
+                rpartmodel &lt;- rpart(classe~., data=traindata, method=&quot;class&quot;)
+                rpartpred &lt;- predict(rpartmodel, testdata, type=&quot;class&quot;)
+                round(confusionMatrix(rpartpred, testdata$classe)$overall[&#39;Accuracy&#39;] *100, digits = 2)}
+        else if (modelname == &quot;Random Forest&quot;) {library(randomForest)
+                rfmodel &lt;- randomForest(classe~., data=traindata, method=&quot;rf&quot;)
+                rfpred &lt;- predict(rfmodel, testdata, type=&quot;class&quot;)
+                round(confusionMatrix(rfpred, testdata$classe)$overall[&#39;Accuracy&#39;] *100, digits = 2)}
+        }
+buildmodel(&quot;rPart&quot;)     
+</code></pre>
+
+<pre><code>## Accuracy 
+##    76.87
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='Background information'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='UI Functionality'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='Server Functionality'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='Demo of the &#39;buildmodel&#39; function (shortened)'>
+         4
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>
